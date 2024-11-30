@@ -71,3 +71,18 @@ async def get_page_details(session: ClientSession, datas: List[QnaData]):
         for span in spans:
             result += span.text
         datas[idx].details = result
+
+
+async def test_get_page_all():
+    html_text_list = ["<html><body><table><tr><td>1</td><td>Type</td><td>Title</td><td>Writer</td><td><a href='/file'>File</a></td><td>10</td><td>2023-10-10</td></tr></table></body></html>"]
+    datas = get_page_all(html_text_list)
+    for data in datas:
+        data.show_all()
+
+async def test_get_page_details():
+    async with ClientSession() as session:
+        datas = [QnaData()]
+        datas[0].detail_link = "https://example.com"
+        await get_page_details(session, datas)
+        for data in datas:
+            data.show_all()

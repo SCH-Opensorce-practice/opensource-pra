@@ -29,4 +29,4 @@ This project is a Python application that asynchronously fetches and processes Q
 
 ## License
 
-This project is licensed under the MIT License. See the `LICENSE` file for details.
+This project is licensed under the GNU 3.0 License. See the `LICENSE` file for details.

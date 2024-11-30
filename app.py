@@ -17,7 +17,6 @@ async def main():
         await get_page_details(session, datas)
         # TODO: Database async insert
 
-
 if __name__ == "__main__":
     if "-debug" in sys.argv:
         scan_for_todo("./")
