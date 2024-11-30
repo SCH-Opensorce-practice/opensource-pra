@@ -38,6 +38,17 @@ def create_table(connection: mysql.connector.connection.MySQLConnection):
             connection.close()
 
 
+def test_create_table():
+    connection = create_connection_pool().get_connection()
+    create_table(connection)
+    cursor = connection.cursor()
+    cursor.execute("SHOW TABLES LIKE 'QnaData'")
+    result = cursor.fetchone()
+    assert result is not None, "Table QnaData was not created"
+    cursor.close()
+    connection.close()
+
+
 class QnaDataModel:
     def __init__(self, qna_data):
         self.qna_data = qna_data
