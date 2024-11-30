@@ -26,11 +26,6 @@ This project is a Python application that asynchronously fetches and processes Q
     python app.py
     ```
 
-## Key Libraries Used
-
-- `aiohttp`: Asynchronous HTTP client library
-- `BeautifulSoup`: HTML parsing library
-
 
 ## License
 
