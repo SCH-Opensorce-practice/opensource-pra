@@ -39,13 +39,103 @@ class QnaData:
         print(f"Details: {self.details}")
 
 
-def get_page_all(html_text_list: List[str]) -> List[QnaData]:
-    datas: List[QnaData] = []
+class QnaDataDB(QnaData):
+    def __init__(self, connection_pool):
+        self.connection_pool = connection_pool
+
+    def get_create_query(self):
+        return """
+        INSERT INTO QnaData (id, type, title, writer, file_link, view, upload_date, detail_link, details)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """
+
+    def create(self):
+        connection = self.connection_pool.get_connection()
+        cursor = connection.cursor()
+        insert_query = self.get_create_query()
+        cursor.execute(
+            insert_query,
+            (
+                self.id,
+                self.type,
+                self.title,
+                self.writer,
+                self.file_link,
+                self.view,
+                self.upload_date,
+                self.detail_link,
+                self.details,
+            ),
+        )
+        connection.commit()
+        cursor.close()
+        connection.close()
+
+    def read(self, qna_id):
+        connection = self.connection_pool.get_connection()
+        cursor = connection.cursor()
+        select_query = "SELECT * FROM QnaData WHERE id = %s"
+        cursor.execute(select_query, (qna_id,))
+        result = cursor.fetchone()
+        cursor.close()
+        connection.close()
+        if result:
+            (
+                self.id,
+                self.type,
+                self.title,
+                self.writer,
+                self.file_link,
+                self.view,
+                self.upload_date,
+                self.detail_link,
+                self.details,
+            ) = result
+            return self
+        return None
+
+    def update(self):
+        connection = self.connection_pool.get_connection()
+        cursor = connection.cursor()
+        update_query = """
+        UPDATE QnaData SET type = %s, title = %s, writer = %s, file_link = %s, view = %s, upload_date = %s, detail_link = %s, details = %s
+        WHERE id = %s
+        """
+        cursor.execute(
+            update_query,
+            (
+                self.type,
+                self.title,
+                self.writer,
+                self.file_link,
+                self.view,
+                self.upload_date,
+                self.detail_link,
+                self.details,
+                self.id,
+            ),
+        )
+        connection.commit()
+        cursor.close()
+        connection.close()
+
+    def delete(self, qna_id):
+        connection = self.connection_pool.get_connection()
+        cursor = connection.cursor()
+        delete_query = "DELETE FROM QnaData WHERE id = %s"
+        cursor.execute(delete_query, (qna_id,))
+        connection.commit()
+        cursor.close()
+        connection.close()
+
+
+def get_page_all(html_text_list: List[str], connection_pool) -> List[QnaDataDB]:
+    datas: List[QnaDataDB] = []
     for html_text in html_text_list:
         soup = BeautifulSoup(html_text, "html.parser")
         tr_list = soup.find_all("tr")[1:]
         for tr in tr_list:
-            qna = QnaData()
+            qna = QnaDataDB(connection_pool)
             tds = tr.find_all("td")
             for idx, td in enumerate(tds):
                 if idx == 2:
@@ -57,8 +147,9 @@ def get_page_all(html_text_list: List[str]) -> List[QnaData]:
                         qna.file_link.append("https://ksae.org" + a["href"])
                 else:
                     qna.insert_data(idx, td.text)
+            qna.create()
             datas.append(qna)
-        return datas
+    return datas
 
 
 async def get_page_details(session: ClientSession, datas: List[QnaData]):
