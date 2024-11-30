@@ -35,9 +35,3 @@ def create_table(connection: mysql.connector.connection.MySQLConnection):
         if connection.is_connected():
             cursor.close()
             connection.close()
-
-
-# Example usage:
-# pool = create_connection_pool('your_host', 'your_database', 'your_user', 'your_password')
-# connection = pool.get_connection()
-# create_table(connection)
