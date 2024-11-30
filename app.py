@@ -1,8 +1,10 @@
 import aiohttp
 import asyncio
+import sys
 
 from src.async_http.page import get_page_all, get_page_details
 from src.async_http.fetch import fetcher
+from check_todo import scan_for_todo
 
 PAGE_URL = "https://ksae.org/jajak/bbs/index.php?page={}&code=J_qna"
 
@@ -13,8 +15,11 @@ async def main():
         results = await asyncio.gather(*tasks)
         datas = get_page_all(results)
         await get_page_details(session, datas)
-        # TOOD:Database async insert
+        # TODO: Database async insert
 
 
-asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
-asyncio.run(main())
+if __name__ == "__main__":
+    if "-debug" in sys.argv:
+        scan_for_todo("./")
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+    asyncio.run(main())
